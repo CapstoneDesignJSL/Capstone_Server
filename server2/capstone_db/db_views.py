@@ -12,10 +12,18 @@ from .models import User, Picture
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializers
+
+    # def get(self, request, *args, **kwargs):
+    #     return self.list(request, *args, **kwargs)
+    #     pass
     pass
 
+
 class PictureViewSet(viewsets.ModelViewSet):
-    queryset  = Picture.objects.all()
+    queryset = Picture.objects.all()
     serializer_class = PictureSerializers
     pass
 
+
+def img_upload(request):
+    pass

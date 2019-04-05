@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'capstone_db',
     'rest_framework',
+    'eth_api',
 ]
 
 MIDDLEWARE = [

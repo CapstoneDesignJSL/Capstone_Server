@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from datashape import unicode
 from django.db import models
 
 # Create your models here.
@@ -15,7 +16,7 @@ class User(models.Model):
         return unicode(self.email_txt) 
     
     def __str__(self):
-        return self.wallet #test
+        return str(self.wallet) #test
     pass
 
 
@@ -26,7 +27,7 @@ class Picture(models.Model):
     #upload_time = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return unicode(picture_name)
+        return unicode(self.picture_name)
 
     def __str__(self):
         return self.picture_binary

@@ -15,14 +15,20 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from capstone_db import views
+from capstone_db import db_views
+from eth_api import eth_views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'user',views.UserViewSet)
-router.register(r'picture',views.PictureViewSet)
+router.register(r'user', db_views.UserViewSet)
+router.register(r'picture', db_views.PictureViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls',namespace='rest_framework'))
+    # url(r'user', db_views.UserViewSet),
+    # url(r'picture', db_views.PictureViewSet),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^eth/check', eth_views.check_account), #지갑있는지 확인
+    url(r'^eth/make', eth_views.make_account), #지갑만들기
+    url(r'^eth/mining', eth_views.mining),
 ]
