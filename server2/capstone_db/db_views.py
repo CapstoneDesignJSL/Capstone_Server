@@ -26,4 +26,6 @@ class PictureViewSet(viewsets.ModelViewSet):
 
 
 def img_upload(request):
+
+
     pass

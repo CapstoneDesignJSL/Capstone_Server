@@ -28,7 +28,7 @@ urlpatterns = [
     # url(r'user', db_views.UserViewSet),
     # url(r'picture', db_views.PictureViewSet),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^eth/check', eth_views.check_account), #지갑있는지 확인
+    url(r'^eth/check/$', eth_views.check_account), #지갑있는지 확인
     url(r'^eth/make', eth_views.make_account), #지갑만들기
     url(r'^eth/mining', eth_views.mining),
 ]
