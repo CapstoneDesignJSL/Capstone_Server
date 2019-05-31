@@ -6,15 +6,14 @@ from __future__ import unicode_literals
 # Create your views here.
 
 from rest_framework import viewsets
-from .serializers import UserSerializers, PictureSerializers
-from .models import User, Picture2
+from server2.capstone_db.serializers import UserSerializers, PictureSerializers
+from .models import User, Picture
 import base64
 
 from django.http import JsonResponse, HttpResponse
 from web3 import Web3, HTTPProvider
 from django.views.decorators.csrf import csrf_exempt
 import hashlib
-import os
 import time
 rpc_url = "http://localhost:8545"
 w3 = Web3(HTTPProvider(rpc_url))
@@ -262,33 +261,13 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class PictureViewSet(viewsets.ModelViewSet):
-    queryset = Picture2.objects.all()
+    queryset = Picture.objects.all()
     serializer_class = PictureSerializers
 
     pass
 
 def picture_list(request):
-    queryset = (Picture2.objects.all())
-    data=[]
-
-    for i in queryset:
-        json_ob = {"picture_name": i.picture_name, "url": "media/"+str(i.image) ,"price":i.price}#,"author":i.author,"wallet":i.wallet}
-        data.insert(0, json_ob)
-
-    print(data)
-
-    return JsonResponse(data, safe=False)
-
-
-def picture_list2(request):
-    user_email = request.GET.get('email', '')
-    wallet = User.objects.get(email_txt=user_email)
-
-
-    queryset = Picture2.objects.filter(wallet=wallet)
-
-    #
-    # queryset = (Picture2.objects.all())
+    queryset = (Picture.objects.all())
     data=[]
 
     for i in queryset:
@@ -298,6 +277,7 @@ def picture_list2(request):
     print(data)
 
     return JsonResponse(data, safe=False)
+
 
 
 @csrf_exempt
@@ -314,31 +294,27 @@ def img_upload(request):
 
     path = "./media/"+picture_name+".png"
     print(picture_name)
-    fh = open(path, "wb")
-    fh.write(imgdata)
-    fh.close()
-
     file_hash = sha256_checksum(path)
-    queryset = Picture2.objects.filter(file_hash=file_hash).count()
+    queryset = Picture.objects.get(file_hash=file_hash).count()
 
     if queryset==0 :
+        #저장
+        fh=open(path,"wb")
+        fh.write(imgdata)
+        fh.close()
 
         # 해시값
         # file_size = os.path.getsize(path)
 
         print(wallet,picture_name,price)
         print("has",file_hash)
-        pic = Picture2(file_hash=file_hash, picture_name=picture_name, image=picture_name+".png", price=price, author=wallet.wallet,wallet=wallet.wallet)
+        pic = Picture(file_hash=file_hash,wallet=wallet, picture_name=picture_name, image=picture_name+".png", price=price, author=wallet)
         pic.save()
 
     else :
-        print("이미 존재")
-        author = Picture2.objects.get(file_hash=file_hash)
-        author.wallet=wallet.wallet
-        author.price=price
-        author.save()
-        # pic = Picture2(file_hash=file_hash, picture_name=picture_name, image=picture_name+".png", price=price, author=author.author,wallet=wallet.wallet)
-        # pic.save()
+        author = Picture.objects.get(file_hash=file_hash)
+        pic = Picture(file_hash=file_hash,wallet=wallet, picture_name=picture_name, image=picture_name+".png", price=price, author=author.author)
+        pic.save()
 
 
     file_name = picture_name + ".png"
@@ -360,7 +336,7 @@ def img_upload(request):
 
 
 def delete(request,name):
-    memo = Picture2.objects.all()
+    memo = Picture.objects.all()
     memo2 = User.objects.all()
 
     for i in memo:
@@ -512,24 +488,17 @@ def transaction(request):
     print(str(wallet))
     # w3.personal.unlockAccount(w3.eth.accounts[0],"admin",0)
 
-    # transaction = contract_instance.transact({"gas":1000000,"from": str(wallet)})
+    transaction = contract_instance.transact({"gas":1000000,"from": str(wallet)})
 
     path = "./media/" + picture_name + ".png"
-
 
 
     print(path)
     file_hash = sha256_checksum(path)  # 해시값
 
-    author = Picture2.objects.get(file_hash=file_hash)
-
-    w3.eth.sendTransaction({"from": str(wallet), "to": author.author, "value": w3.toWei(author.price/2, "ether")})
-    w3.eth.sendTransaction({"from": str(wallet), "to": author.wallet, "value": w3.toWei(author.price/2, "ether")})
-    author.wallet=wallet
-
-    # tx_hash = transaction.trans(file_hash,str(wallet))
-    # print("tx= ",tx_hash)
-    # print(transaction)
+    tx_hash = transaction.trans(file_hash,str(wallet))
+    print("tx= ",tx_hash)
+    print(transaction)
     w3.miner.start(5)
     time.sleep(5)
     w3.miner.stop()
@@ -549,24 +518,6 @@ def file_info(request):
     print(path)
     file= sha256_checksum(path)
     print(file)
-    author = Picture2.objects.get(file_hash=file)
-    # tt=contract_instance.call().getFileInfo2(w3.eth.accounts[3])
-    # print(tt)
-    return JsonResponse({"wallet":author.wallet,"author":author.author},safe=False)
-
-def wallet(request):
-    w3 = Web3(HTTPProvider(rpc_url))
-
-    return JsonResponse({"wallet":w3.eth.accounts[0],"author":w3.eth.accounts[2]},safe=False)
-
-
-
-def down(request):
-    picture_name = request.POST["picture_name"]
-
-    path = "./media/" + picture_name + ".png"
-
-    with open(path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-
-    return  JsonResponse({"img":encoded_string},safe=False)
+    tt=contract_instance.call().getFileInfo2(w3.eth.accounts[3])
+    print(tt)
+    return HttpResponse(tt)

@@ -25,8 +25,10 @@ SECRET_KEY = '8-ls64tpk+34_ku1l-d06k-vau9&w6gi1#__(fhzm0r3fa4zqy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2']
+ALLOWED_HOSTS = ['10.0.2.2', '*' ]
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Application definition
 

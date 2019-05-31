@@ -14,9 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-from django.contrib import admin
+from django.conf import settings
 from capstone_db import db_views
 from eth_api import eth_views
+from django.conf.urls.static import static
 from rest_framework import routers
 
 router = routers.DefaultRouter()
@@ -25,10 +26,18 @@ router.register(r'picture', db_views.PictureViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    # url(r'user', db_views.UserViewSet),
-    # url(r'picture', db_views.PictureViewSet),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^eth/check/$', eth_views.check_account), #지갑있는지 확인
-    url(r'^eth/make', eth_views.make_account), #지갑만들기
-    url(r'^eth/mining', eth_views.mining),
-]
+    url(r'^eth/wallet/',db_views.wallet),
+    url(r'^eth/check/$', db_views.check_account),
+    url(r'^eth/make/(?P<email>.+)', db_views.make_account),
+    url(r'^eth/mining', db_views.mining),
+    url(r'^eth/bal', db_views.balance),
+    url(r'^info',db_views.file_info),
+    url(r'^eth/mining_stop', db_views.mining_stop),
+    url(r'^list/', db_views.picture_list),
+    url(r'^list2/', db_views.picture_list2),
+    url(r'^del/(?P<name>.+)', db_views.delete),
+    url(r'^upload', db_views.img_upload),
+    url(r'^down',db_views.down),
+    url(r'^trans', db_views.transaction),
+]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
